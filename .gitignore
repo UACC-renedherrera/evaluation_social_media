@@ -38,11 +38,14 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# data folders 
+# data folders
 data/
 
-#  figures 
+#  figures
 figures/
 
-# reports 
+# reports
 reports/
+
+# hidden
+hidden/
