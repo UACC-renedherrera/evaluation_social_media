@@ -1,7 +1,26 @@
 # Social Media Evaluation
 
 
+# Abstract 
+
 The purpose of this project is to evaluate the social media (Twitter) presence of UAZCC COE using both qualitative and quantitative data analysis.
+
+
+## Background 
+
+
+
+## Methods 
+
+
+
+## Data Analysis 
+
+
+## Findings 
+
+
+## Discussion 
 
 
 ## Qualitative Data Analysis 
