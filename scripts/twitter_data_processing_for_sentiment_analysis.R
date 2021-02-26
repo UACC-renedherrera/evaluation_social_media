@@ -6,6 +6,7 @@ library(dplyr)
 library(tm)
 library(RColorBrewer)
 library(stopwords)
+library(infer)
 
 # read data ----
 hashtags <- read_rds("data/raw/twitter_hashtags.rds")
@@ -19,12 +20,16 @@ coe_tweets <- read_rds("data/raw/coe_tweets.rds")
 glimpse(coe_tweets)
 
 # distinct tweets not retweeted
+coe_tweets <- coe_tweets %>%
+  filter(is_retweet == FALSE)
+
+# how many tweets by COE
 coe_tweets %>%
   filter(is_retweet == FALSE) %>%
   count(status_id) %>%
   summarise(sum(n))
 
-# favorite count 
+# view most favorited tweet
 coe_tweets %>%
   filter(is_retweet == FALSE) %>%
   arrange(desc(favorite_count)) %>%
@@ -32,7 +37,7 @@ coe_tweets %>%
   select(favorite_count, created_at, text, is_retweet) %>%
   view()
 
-# retweet count
+# view most retweeted tweet
 coe_tweets %>%
   filter(is_retweet == FALSE) %>%
   arrange(desc(retweet_count)) %>%
@@ -40,23 +45,7 @@ coe_tweets %>%
   select(retweet_count, created_at, text, is_retweet) %>%
   view()
 
-# quote count 
-coe_tweets %>%
-  filter(is_retweet == FALSE) %>%
-  arrange(desc(quote_count)) %>%
-  slice(1) %>%
-  select(quote_count, created_at, text, is_retweet) %>%
-  view()
-
-# reply count
-coe_tweets %>%
-  filter(is_retweet == FALSE) %>%
-  arrange(desc(reply_count)) %>%
-  slice(1) %>%
-  select(reply_count, created_at, text, is_retweet) %>%
-  view()
-
-# date range 
+# date range of COE tweets
 coe_tweets %>%
   summarise(min(created_at), max(created_at))
 
@@ -82,7 +71,7 @@ coe_tidy_tweet_text %>%
   inner_join(get_sentiments("bing"), by = "word") %>%
   count(word, sort = TRUE)
 
-# display overall sentiment of the sample
+# display overall sentiment of COE Tweets
 coe_tidy_tweet_text %>%
   inner_join(get_sentiments("bing"), by = "word") %>%
   count(line, index = line, sentiment) %>%
@@ -90,7 +79,7 @@ coe_tidy_tweet_text %>%
   mutate(sentiment = positive - negative) %>%
   summarise(overall_sentiment = sum(sentiment))
 
-# 5 most negative and postive words in the sample
+# 5 most used negative and postive words by COE
 coe_tidy_tweet_text %>%
   count(word) %>%
   inner_join(get_sentiments("bing"), by = "word") %>%
@@ -99,7 +88,8 @@ coe_tidy_tweet_text %>%
   slice(1:5)
 
 # sample tweet text from coe
-coe_tweet_text %>%
+coe_tweets %>%
+  select(created_at, text) %>%
   sample_n(3) %>%
   view()
 
@@ -121,85 +111,60 @@ coe_tidy_tweet_text %>%
   theme_bw() +
   scale_fill_brewer(palette = "Paired")
 
-
 # tweets with cancer related hashtag ----
 # inspect
 glimpse(hashtags)
+str(hashtags)
 
-# work with a sample of 1000
-hashtags_n <- hashtags %>%
+# date range of cancer tweets 
+hashtags %>%
+  summarise(min(created_at), max(created_at))
+
+# generate 100 samples of 415
+hashtag_samples <- hashtags %>%
   filter(screen_name != "UAZCancer_COE") %>%
-  sample_n(1000, replace = TRUE)
+  rep_sample_n(size = 415, reps = 500, replace = TRUE)
 
-# show who is tweeting about "cancer"
-users <- hashtags_n %>%
-  distinct(screen_name) %>%
-  arrange(screen_name)
-
-# location of users
-# hashtags_n %>%
-#   count(location, sort = TRUE) %>%
-#   mutate(location = reorder(location, n)) %>%
-#   top_n(20) %>%
-#   ggplot(aes(x = location)) +
-#   geom_bar() +
-#   coord_flip() +
-#   labs(x = "Count",
-#        y = "Location",
-#        title = "Twitter users - unique locations")
-
-# text of tweets
-tweet_text <- hashtags_n %>%
-  select(text)
-
-# inspect
-glimpse(tweet_text)
-
-# tweet text
-tweet_text <- tweet_text %>%
+# select only text
+hashtag_samples_tweet_text <- hashtag_samples %>%
+  select(replicate, text) %>%
   mutate(line = row_number())
 
 # convert tweets to one token per row format
 # remove stopwords
-tidy_tweet_text <- tweet_text %>%
+hashtag_samples_tweet_text <- hashtag_samples_tweet_text %>%
+  ungroup() %>%
   unnest_tokens(word, text) %>%
   anti_join(get_stopwords()) %>%
-  filter(word != "cancer")
+  filter(word != "cancer") %>%
+  inner_join(get_sentiments("bing"), by = "word") %>%
+  group_by(replicate)
 
 # most common words
-tidy_tweet_text %>%
-  inner_join(get_sentiments("bing"), by = "word") %>%
+hashtag_samples_tweet_text %>%
   count(word, sort = TRUE)
 
-# display overall sentiment of the sample
-tidy_tweet_text %>%
-  inner_join(get_sentiments("bing"), by = "word") %>%
+# display overall sentiment of each of the samples
+hashtag_samples_sentiment <- hashtag_samples_tweet_text %>%
   count(line, index = line, sentiment) %>%
   spread(sentiment, n, fill = 0) %>%
   mutate(sentiment = positive - negative) %>%
   summarise(overall_sentiment = sum(sentiment))
 
-# 5 most negative and postive words in the sample
-tidy_tweet_text %>%
-  count(word) %>%
-  inner_join(get_sentiments("bing"), by = "word") %>%
-  group_by(sentiment) %>%
-  arrange(desc(n)) %>%
-  slice(1:5)
+# mean & median sentiment
+hashtag_samples_sentiment %>%
+  summarise(mean(overall_sentiment), 
+            median(overall_sentiment),
+            mode(overall_sentiment),
+            sd = sd(overall_sentiment),
+            min = min(overall_sentiment),
+            max = max(overall_sentiment))
 
-# visualize 20 most postive and negative words
-tidy_tweet_text %>%
-  count(word) %>%
-  inner_join(get_sentiments("bing"), by = "word") %>%
-  group_by(sentiment) %>%
-  arrange(desc(n)) %>%
-  slice(1:10) %>%
-  ggplot(mapping = aes(x = reorder(word, n), y = n, fill = sentiment)) +
-  geom_bar(stat = "identity") +
-  coord_flip() +
-  labs(title = "Most frequently used words in tweets about cancer",
-       x = "Word",
-       y = "Frequency") +
+# show histogram of mean sentiment
+hashtag_samples_sentiment %>%
+  ggplot(mapping = aes(x = overall_sentiment)) +
+  geom_histogram(color = "blue", fill = "lightblue") +
   theme_bw() +
-  scale_fill_brewer(palette = "Paired")
-  
+  labs(title = "Distribution of Overall Sentiment Mean",
+       subtitle = "From 500 samples",
+       x = "Sampled mean overall sentiment")
