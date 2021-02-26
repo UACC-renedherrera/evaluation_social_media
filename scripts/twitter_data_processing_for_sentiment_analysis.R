@@ -37,6 +37,19 @@ coe_tweets %>%
   select(favorite_count, created_at, text, is_retweet) %>%
   view()
 
+# histogram of favorited tweets 
+coe_tweets %>%
+  filter(is_retweet == FALSE) %>%
+  arrange(desc(favorite_count)) %>%
+  select(favorite_count, created_at, ) %>%
+  ggplot(mapping = aes(x = favorite_count)) +
+  geom_histogram(bins = 10, color = "#81D3EB", fill = "#0C234B") +
+  labs(title = "Distribution of Favorited Tweets",
+       subtitle = "A histogram",
+       x = "Favorites",
+       y = "",
+       caption = "Source: UAZCC COE Twitter")
+
 # view most retweeted tweet
 coe_tweets %>%
   filter(is_retweet == FALSE) %>%
