@@ -15,6 +15,51 @@ coe_tweets <- read_rds("data/raw/coe_tweets.rds")
 # cancer_usrs <- read_rds("data/raw/cancer_usrs.rds")
 
 # tweets by the cancer center ----
+# inspect
+glimpse(coe_tweets)
+
+# distinct tweets not retweeted
+coe_tweets %>%
+  filter(is_retweet == FALSE) %>%
+  count(status_id) %>%
+  summarise(sum(n))
+
+# favorite count 
+coe_tweets %>%
+  filter(is_retweet == FALSE) %>%
+  arrange(desc(favorite_count)) %>%
+  slice(1) %>%
+  select(favorite_count, created_at, text, is_retweet) %>%
+  view()
+
+# retweet count
+coe_tweets %>%
+  filter(is_retweet == FALSE) %>%
+  arrange(desc(retweet_count)) %>%
+  slice(1) %>%
+  select(retweet_count, created_at, text, is_retweet) %>%
+  view()
+
+# quote count 
+coe_tweets %>%
+  filter(is_retweet == FALSE) %>%
+  arrange(desc(quote_count)) %>%
+  slice(1) %>%
+  select(quote_count, created_at, text, is_retweet) %>%
+  view()
+
+# reply count
+coe_tweets %>%
+  filter(is_retweet == FALSE) %>%
+  arrange(desc(reply_count)) %>%
+  slice(1) %>%
+  select(reply_count, created_at, text, is_retweet) %>%
+  view()
+
+# date range 
+coe_tweets %>%
+  summarise(min(created_at), max(created_at))
+
 # text of tweets
 coe_tweet_text <- coe_tweets %>%
   filter(is_retweet == FALSE) %>%
@@ -53,6 +98,11 @@ coe_tidy_tweet_text %>%
   arrange(desc(n)) %>%
   slice(1:5)
 
+# sample tweet text from coe
+coe_tweet_text %>%
+  sample_n(3) %>%
+  view()
+
 # visualize 10 most postive and negative words
 coe_tidy_tweet_text %>%
   count(word) %>%
@@ -63,9 +113,11 @@ coe_tidy_tweet_text %>%
   ggplot(mapping = aes(x = reorder(word, n), y = n, fill = sentiment)) +
   geom_bar(stat = "identity") +
   coord_flip() +
-  labs(title = "Most frequently used words in tweets about cancer",
+  labs(title = "Most Frequently Used Words in COE Tweets",
+       subtitle = "According to sentiment",
        x = "Word",
-       y = "Frequency") +
+       y = "Frequency",
+       caption = "Twitter data from 28 Sep 2018 to 10 Feb 2021") +
   theme_bw() +
   scale_fill_brewer(palette = "Paired")
 
