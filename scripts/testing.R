@@ -1,14 +1,14 @@
-# data processing for twitter to 
+# data processing for twitter to
 # collect tweets from the previous few days with cancer related hashtags
 
 # set up ----
-# load packages 
+# load packages
 
 library(here)
 library(tidyverse)
-library(rtweet) 
+library(rtweet)
 
-# define hashtags of interest 
+# define hashtags of interest
 
 hashtags <- c("#CancerFreeAZ", #uazcc
               "#adcsm", # adrenal cancer
@@ -24,6 +24,7 @@ hashtags <- c("#CancerFreeAZ", #uazcc
               "#gyncsm", #gynecologic cancer
               "#hncsm", #head and neck cancer
               "#hpbcsm", #hepatobiliary cancer
+              "#hepatobiliary",
               "#kcsm", #kidney cancer
               "#lcsm", #lung cancer
               "#leusm", #leukemia
@@ -61,22 +62,26 @@ hashtags <- c("#CancerFreeAZ", #uazcc
               "#childhoodcancer",
               "#breastcancerawareness",
               "#pancan",
+              "#pancchat",
               "#kidneycancer",
-              "#kidneycancerawareness"
+              "#kidneycancerawareness",
+              "#livercancer",
+              "#cancerawareness",
+              "#btcsm" #billiary tract cancer
 ) %>%
   set_names() # Name the vector so you have meaningful information in the new col
 
-# 
+#
 # Create df by mapping search_tweets over the named vector
 outdf <- purrr::map_dfr(hashtags, search_tweets, include_rts = FALSE, n = 500, .id = "searchtag")
 
-# load existing dataset 
+# load existing dataset
 twitter_hashtags <- read_rds("data/raw/twitter_hashtags.rds")
 
 # combine outdf and twitter_hashtags
 twitter_hashtags <- bind_rows(twitter_hashtags, outdf)
 
-# remove duplicates 
+# remove duplicates
 twitter_hashtags <- distinct(twitter_hashtags, status_id, .keep_all = TRUE)
 
 # save to data/raw
@@ -89,5 +94,3 @@ twitter_hashtags %>%
 # load data into environment ----
 
 cancer_twts <- read_rds("data/raw/cancer_twts.rds") #tweets with cancerfreeaz tag
-
-

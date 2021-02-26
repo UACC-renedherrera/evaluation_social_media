@@ -4,7 +4,7 @@
 library(here)
 library(tidyverse)
 library(rtweet)
-get_token()
+#get_token()
 
 # load data into environment ----
 
@@ -20,7 +20,7 @@ twts <- search_tweets(
 
 tmls <- get_timelines("UAZCancer_COE") # most recent tweets from uazcancer_coe
 
-fvts <- get_favorites("UAZCancer_COE") # get tweets data for statuses favorited by one ore more target users; 
+fvts <- get_favorites("UAZCancer_COE") # get tweets data for statuses favorited by one ore more target users;
 # tweets with most favorites from uazcancer_coe
 
 # return list of user screen names uazcc_coe follows
@@ -47,7 +47,7 @@ impact <- followers_count/friends_count
 # for most recent tweets with cancerfreeaz hashtag
 binded_hash <- bind_rows(cancer_twts, twts)
 cancer_twts <- distinct(binded_hash, status_id, .keep_all = TRUE)
-cancer_twts <- cancer_twts %>% 
+cancer_twts <- cancer_twts %>%
   arrange(desc(created_at))
 
 # for most recent tweets from uazcancer_coe
@@ -128,7 +128,7 @@ cancer_twts %>%
   count()
 
 cancer_twts %>%
-  filter(media_type == "photo") 
+  filter(media_type == "photo")
 
 cancer_twts %>%
   select(text) %>%

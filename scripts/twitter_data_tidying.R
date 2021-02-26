@@ -2,11 +2,11 @@
 # set up ----
 library(here)
 library(rtweet)
-get_token()
+#get_token()
 library(tidyverse)
 
 # run ----
-# the following block to query data 
+# the following block to query data
 #
 
 twts <- search_tweets(
@@ -30,4 +30,3 @@ cancer_twts <- twts
 write_rds(coe_tweets, "data_raw/coe_tweets.rds")
 write_rds(coe_faves, "data_raw/coe_faves.rds")
 write_rds(cancer_twts, "data_raw/cancer_twts.rds")
-
