@@ -17,13 +17,13 @@ hashtags <- c("#CancerFreeAZ", #uazcc
 
 #
 # Create df by mapping search_tweets over the named vector
-outdf <- purrr::map_dfr(hashtags, search_tweets, include_rts = FALSE, n = 500, .id = "searchtag")
+outdf_naca <- purrr::map_dfr(hashtags, search_tweets, include_rts = FALSE, n = 500, .id = "searchtag")
 
 # load existing dataset
 naca_fun_run_twitter_hashtags <- read_rds("data/raw/naca_fun_run_twitter_hashtags.rds")
 
 # combine outdf and twitter_hashtags
-naca_fun_run_twitter_hashtags <- bind_rows(naca_fun_run_twitter_hashtags, outdf)
+naca_fun_run_twitter_hashtags <- bind_rows(naca_fun_run_twitter_hashtags, outdf_naca)
 
 # remove duplicates
 naca_fun_run_twitter_hashtags <- distinct(naca_fun_run_twitter_hashtags, status_id, .keep_all = TRUE)
