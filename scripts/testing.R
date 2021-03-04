@@ -71,6 +71,8 @@ hashtags <- c("#CancerFreeAZ", #uazcc
 ) %>%
   set_names() # Name the vector so you have meaningful information in the new col
 
+write_rds(hashtags, "data/tidy/hashtags_list_of.rds")
+
 #
 # Create df by mapping search_tweets over the named vector
 outdf <- purrr::map_dfr(hashtags, search_tweets, include_rts = FALSE, n = 500, .id = "searchtag")
