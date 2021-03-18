@@ -67,7 +67,8 @@ hashtags <- c("#CancerFreeAZ", #uazcc
               "#kidneycancerawareness",
               "#livercancer",
               "#cancerawareness",
-              "#btcsm" #billiary tract cancer
+              "#btcsm", #billiary tract cancer
+              "#beyondcancer"
 ) %>%
   set_names() # Name the vector so you have meaningful information in the new col
 
@@ -88,10 +89,6 @@ twitter_hashtags <- distinct(twitter_hashtags, status_id, .keep_all = TRUE)
 
 # save to data/raw
 write_rds(twitter_hashtags, "data/raw/twitter_hashtags.rds")
-
-twitter_hashtags %>%
-  count(searchtag) %>%
-  arrange(desc(n))
 
 # load data into environment ----
 
