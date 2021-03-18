@@ -81,72 +81,72 @@ coe_tweets %>%
   theme_classic()
 
 
-### testing below
-
-
-# data processing for twitter
-# set up ----
-
-library(here)
-library(tidyverse)
-library(rtweet)
-get_token()
-
-# load data into environment ----
-
-coe_tweets <- read_rds("data/raw/coe_tweets.rds") #tweets by UAZCC COE
-coe_faves <- read_rds("data/raw/coe_faves.rds") #tweets favorited by UAZCC COE
-cancer_twts <- read_rds("data/raw/cancer_twts.rds") #tweets with cancerfreeaz tag
-
-glimpse(cancer_twts)
-
-cancer_twts %>%
-  distinct(screen_name)
-
-cancer_twts %>%
-  summarise(min(created_at),
-            max(created_at))
-
-cancer_twts %>%
-  arrange(desc(favorite_count))
-
-cancer_twts %>%
-  filter(favorite_count >= 1)
-
-cancer_twts %>%
-  arrange(desc(retweet_count))
-
-cancer_twts %>%
-  filter(retweet_count >= 1)
-
-cancer_twts %>%
-  distinct(place_name) %>%
-  drop_na()
-
-cancer_twts %>%
-  filter(media_url != "NA") %>%
-  count()
-
-cancer_twts %>%
-  filter(media_type == "photo")
-
-cancer_twts %>%
-  select(text) %>%
-  sample_n(3)
-
-coe_hashtags <- cancer_twts %>%
-  filter(hashtags != "NA") %>%
-  select(hashtags) %>%
-  as.character(cancer_twts$hashtags)
-
-coe_hashtags
-
-acs_tweets <- get_timelines("AmericanCancer") # most recent tweets from ACS
-
-acs_hashtags <- acs_tweets %>%
-  filter(hashtags != "NA") %>%
-  select(hashtags) %>%
-  as.character(acs_tweets$hashtags)
-
-str_extract(acs_hashtags, "\\d")
-acs_hashtags
+# ### testing below
+# 
+# 
+# # data processing for twitter
+# # set up ----
+# 
+# library(here)
+# library(tidyverse)
+# library(rtweet)
+# get_token()
+# 
+# # load data into environment ----
+# 
+# coe_tweets <- read_rds("data/raw/coe_tweets.rds") #tweets by UAZCC COE
+# coe_faves <- read_rds("data/raw/coe_faves.rds") #tweets favorited by UAZCC COE
+# cancer_twts <- read_rds("data/raw/cancer_twts.rds") #tweets with cancerfreeaz tag
+# 
+# glimpse(cancer_twts)
+# 
+# cancer_twts %>%
+#   distinct(screen_name)
+# 
+# cancer_twts %>%
+#   summarise(min(created_at),
+#             max(created_at))
+# 
+# cancer_twts %>%
+#   arrange(desc(favorite_count))
+# 
+# cancer_twts %>%
+#   filter(favorite_count >= 1)
+# 
+# cancer_twts %>%
+#   arrange(desc(retweet_count))
+# 
+# cancer_twts %>%
+#   filter(retweet_count >= 1)
+# 
+# cancer_twts %>%
+#   distinct(place_name) %>%
+#   drop_na()
+# 
+# cancer_twts %>%
+#   filter(media_url != "NA") %>%
+#   count()
+# 
+# cancer_twts %>%
+#   filter(media_type == "photo")
+# 
+# cancer_twts %>%
+#   select(text) %>%
+#   sample_n(3)
+# 
+# coe_hashtags <- cancer_twts %>%
+#   filter(hashtags != "NA") %>%
+#   select(hashtags) %>%
+#   as.character(cancer_twts$hashtags)
+# 
+# coe_hashtags
+# 
+# acs_tweets <- get_timelines("AmericanCancer") # most recent tweets from ACS
+# 
+# acs_hashtags <- acs_tweets %>%
+#   filter(hashtags != "NA") %>%
+#   select(hashtags) %>%
+#   as.character(acs_tweets$hashtags)
+# 
+# str_extract(acs_hashtags, "\\d")
+# acs_hashtags
