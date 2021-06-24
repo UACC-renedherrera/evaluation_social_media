@@ -1,4 +1,5 @@
 # data processing for twitter
+# run this to get coe tweets and cancerfreeaz
 # set up ----
 
 library(here)
@@ -39,7 +40,7 @@ followers_data <- followers_data %>%
 friends_count <- count(friends)
 followers_count <- count(followers)
 
-impact <- followers_count/friends_count
+#impact <- followers_count/friends_count
 
 
 # append updated tweets ----
@@ -68,17 +69,17 @@ write_rds(coe_tweets, "data/raw/coe_tweets.rds")
 write_rds(coe_faves, "data/raw/coe_faves.rds")
 write_rds(cancer_twts, "data/raw/cancer_twts.rds")
 
-# visualizations
-
-coe_tweets %>%
-  ggplot(mapping = aes(x = status_id, y = favorite_count)) +
-  geom_bar(stat = "identity") +
-  theme_classic()
-
-coe_tweets %>%
-  ggplot(mapping = aes(x = status_id, y = retweet_count)) +
-  geom_bar(stat = "identity") +
-  theme_classic()
+# # visualizations
+# 
+# coe_tweets %>%
+#   ggplot(mapping = aes(x = status_id, y = favorite_count)) +
+#   geom_bar(stat = "identity") +
+#   theme_classic()
+# 
+# coe_tweets %>%
+#   ggplot(mapping = aes(x = status_id, y = retweet_count)) +
+#   geom_bar(stat = "identity") +
+#   theme_classic()
 
 
 # ### testing below
