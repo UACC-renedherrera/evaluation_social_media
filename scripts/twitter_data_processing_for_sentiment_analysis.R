@@ -7,6 +7,7 @@ library(tm)
 library(RColorBrewer)
 library(stopwords)
 library(infer)
+library(lubridate)
 
 # read data ----
 hashtags <- read_rds("data/raw/twitter_hashtags.rds")
@@ -21,13 +22,19 @@ glimpse(coe_tweets)
 
 # distinct tweets not retweeted
 coe_tweets <- coe_tweets %>%
-  filter(is_retweet == FALSE)
+  filter(is_retweet == FALSE) 
+
+# save to disk 
+write_rds(coe_tweets, "data/tidy/coe_tweets.rds")
 
 # how many tweets by COE
-coe_tweets %>%
+coe_tweets_n <- coe_tweets %>%
   filter(is_retweet == FALSE) %>%
   count(status_id) %>%
-  summarise(sum(n))
+  summarise(sum(n)) %>%
+  as.character()
+
+coe_tweets_n
 
 # view most favorited tweet
 coe_tweets %>%
@@ -62,6 +69,22 @@ coe_tweets %>%
 coe_tweets %>%
   summarise(min(created_at), max(created_at))
 
+# save date range min and max to environment for use in visualization caption 
+coe_tweets_min_max <- coe_tweets %>%
+  summarise(min(created_at), max(created_at))
+
+# min  
+coe_tweets_min <- coe_tweets_min_max %>%
+  select(starts_with("min"))
+
+coe_tweets_min <- as_date(coe_tweets_min$`min(created_at)`)
+
+# max
+coe_tweets_max <- coe_tweets_min_max %>%
+  select(starts_with("max"))
+
+coe_tweets_max <- as_date(coe_tweets_max$`max(created_at)`)
+
 # text of tweets
 coe_tweet_text <- coe_tweets %>%
   filter(is_retweet == FALSE) %>%
@@ -85,14 +108,14 @@ coe_tidy_tweet_text %>%
   count(word, sort = TRUE)
 
 # display overall sentiment of COE Tweets
-coe_tidy_tweet_text %>%
+coe_sentiment <- coe_tidy_tweet_text %>%
   inner_join(get_sentiments("bing"), by = "word") %>%
   count(line, index = line, sentiment) %>%
   spread(sentiment, n, fill = 0) %>%
   mutate(sentiment = positive - negative) %>%
   summarise(overall_sentiment = sum(sentiment))
 
-# 5 most used negative and postive words by COE
+# 5 most used negative and positive words by COE
 coe_tidy_tweet_text %>%
   count(word) %>%
   inner_join(get_sentiments("bing"), by = "word") %>%
@@ -106,7 +129,11 @@ coe_tweets %>%
   sample_n(3) %>%
   view()
 
-# visualize 10 most postive and negative words
+# visualize 10 most positive and negative words
+# caption 
+fig_caption <- str_c(sep = " ", "Twitter data from", coe_tweets_min, "to", coe_tweets_max)
+
+# plot
 coe_tidy_tweet_text %>%
   count(word) %>%
   inner_join(get_sentiments("bing"), by = "word") %>%
@@ -120,7 +147,7 @@ coe_tidy_tweet_text %>%
        subtitle = "According to sentiment",
        x = "Word",
        y = "Frequency",
-       caption = "Twitter data from 28 Sep 2018 to 10 Feb 2021") +
+       caption = fig_caption) +
   theme_bw() +
   scale_fill_brewer(palette = "Paired")
 
@@ -129,14 +156,36 @@ coe_tidy_tweet_text %>%
 glimpse(hashtags)
 str(hashtags)
 
+# number of tweets 
+hashtags_n <- hashtags %>%
+  count(status_id) %>%
+  summarise(sum(n)) %>%
+  as.character()
+
 # date range of cancer tweets 
 hashtags %>%
   summarise(min(created_at), max(created_at))
 
-# generate 100 samples of 415
+# save date range min and max to environment for use in visualization caption 
+hashtags_min_max <- hashtags %>%
+  summarise(min(created_at), max(created_at))
+
+# min  
+hashtags_min <- hashtags_min_max %>%
+  select(starts_with("min"))
+
+hashtags_min <- as_date(hashtags_min$`min(created_at)`)
+
+# max
+hashtags_max <- hashtags_min_max %>%
+  select(starts_with("max"))
+
+hashtags_max <- as_date(hashtags_max$`max(created_at)`)
+
+# generate 100 samples
 hashtag_samples <- hashtags %>%
   filter(screen_name != "UAZCancer_COE") %>%
-  rep_sample_n(size = 415, reps = 500, replace = TRUE)
+  rep_sample_n(size = as.numeric(coe_tweets_n), reps = 500, replace = TRUE)
 
 # select only text
 hashtag_samples_tweet_text <- hashtag_samples %>%
